@@ -27,25 +27,49 @@ module MLP {
 
     /* Create Ranges for the objects */
     const inputRange = 0..X.shape[1],
-          hiddenRange = 0..3,
+          hiddenRange = 0..#3,
           outputRange = 0..#1;
 
-    // Weight and bias matrices
+    /* Weight and bias matrices
+       Note that inputRange counts the number of inputs, not the dimension
+       of the input.  We'll have to clarify that.
+     */
     var wh: [{inputRange, hiddenRange}] real,
-        bh: [{0..0, hiddenRange}] real,
+        //bh: [{0..0, hiddenRange}] real,
         wout: [{hiddenRange, outputRange}] real,
         bout: [{0..0, outputRange}] real;
+
+    var bh: [hiddenRange] real;
 
     fillRandom(wh);
     fillRandom(bh);
     fillRandom(wout);
     fillRandom(bout);
 
+    var bhm: [hiddenRange, hiddenRange] real;
+    for i in hiddenRange{
+      bhm[i,..] = bh;
+    }
+
+
+
     for i in 1..#epoch {
 
       /* Forward propagation */
+      //writeln("X shape: ", X.shape);
+      //writeln("wh shape: ", wh.shape);
+      //writeln("bh shape: ", bh.shape);
+      //writeln("bhm shape: ", bhm.shape);
+      //writeln("bhm:\n ", bhm);
       var hidden_layer_input1 = dot(X,wh);
-      writeln(hidden_layer_input1);
+      //writeln(hidden_layer_input1.shape);
+      //writeln(bh.shape);
+      //writeln(bhm.shape);
+      /* Here, Python pulls a bullshit move
+         It adds b to each ROW of dot(X,wh), which is bullshit any way you slice it.
+       */
+      //var hidden_layer_input = matPlus(hidden_layer_input1, bs);
+      var hidden_layer_input = matPlus(hidden_layer_input1, bhm);
     }
 
   }
