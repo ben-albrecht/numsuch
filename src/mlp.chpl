@@ -1,9 +1,11 @@
 module MLP {
+  // https://gist.github.com/ben-albrecht/e2765ddd49007744a09dd016535038f9
+
   use LinearAlgebra;
   use Random;
   //config const epoch = 5000;
-  config const epoch = 5;
-  config const lr = 0.1;
+  config const epoch = 5,
+               lr = 0.1;
 
   /*
    Attempts to implement the Multi-Layer Perceptron described here
@@ -12,23 +14,28 @@ module MLP {
    */
   proc main() {
     writeln("Hola Mundo!");
-    var dom = {1..3,1..4};
-    var X: [dom] real;
-    X = Matrix([1,0,1,0],
-       [1,0,1,1],
-       [0,1,0,1]);
+    var X = Matrix(
+       [1.0,0.0,1.0,0.0],
+       [1.0,0.0,1.0,1.0],
+       [0.0,1.0,0.0,1.0]);
     var y = Vector([1,1,0]);
 
     // Variable Initialization
-    var inputlayer_neurons = X.domain.dim(1).size;
-    var hiddenlayer_neurons = 3;
-    var output_neurons = 1;
+    const inputLayerNeurons = X.shape[1],
+          hiddenlayer_neurons = 3,
+          output_neurons = 1;
+
+    /* Create Ranges for the objects */
+    const inputRange = 0..X.shape[1],
+          hiddenRange = 0..3,
+          outputRange = 0..#1;
 
     // Weight and bias matrices
-    var wh: [{X.domain.dim(1),1..#hiddenlayer_neurons}] real;
-    var bh: [{1..1,1..#hiddenlayer_neurons}] real;
-    var wout: [{1..#hiddenlayer_neurons, 1..#output_neurons}] real;
-    var bout: [{1..1, 1..#output_neurons}] real;
+    var wh: [{inputRange, hiddenRange}] real,
+        bh: [{0..0, hiddenRange}] real,
+        wout: [{hiddenRange, outputRange}] real,
+        bout: [{0..0, outputRange}] real;
+
     fillRandom(wh);
     fillRandom(bh);
     fillRandom(wout);
@@ -36,8 +43,8 @@ module MLP {
 
     for i in 1..#epoch {
 
-      // Forward propagation
-      var hidden_layer_input1 = dot(X,wh); // Dimension mis-match
+      /* Forward propagation */
+      var hidden_layer_input1 = dot(X,wh);
       writeln(hidden_layer_input1);
     }
 
