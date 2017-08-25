@@ -1,7 +1,8 @@
 module MLP {
   use LinearAlgebra;
   use Random;
-  config const epoch = 5000;
+  //config const epoch = 5000;
+  config const epoch = 5;
   config const lr = 0.1;
 
   /*
@@ -24,7 +25,7 @@ module MLP {
     var output_neurons = 1;
 
     // Weight and bias matrices
-    var wh: [{1..#inputlayer_neurons,1..#hiddenlayer_neurons}] real;
+    var wh: [{X.domain.dim(1),1..#hiddenlayer_neurons}] real;
     var bh: [{1..1,1..#hiddenlayer_neurons}] real;
     var wout: [{1..#hiddenlayer_neurons, 1..#output_neurons}] real;
     var bout: [{1..1, 1..#output_neurons}] real;
@@ -33,7 +34,12 @@ module MLP {
     fillRandom(wout);
     fillRandom(bout);
 
-    
+    for i in 1..#epoch {
+
+      // Forward propagation
+      var hidden_layer_input1 = dot(X,wh); // Dimension mis-match
+      writeln(hidden_layer_input1);
+    }
 
   }
 
