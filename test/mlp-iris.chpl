@@ -12,6 +12,9 @@ const epochs:int = 4,
       lr: real = 0.1;
 var model = new Sequential(epochs=epochs, lr=lr);
 model.add(new Dense(units=3, inputDim=4));
+model.add(new Dense(units=3, inputDim=4));
+model.add(new Dense(units=3, inputDim=4));
+model.add(new Activation(name="relu"));
 
 var o = model.fit(X,y, epochs, lr);
 writeln(o);

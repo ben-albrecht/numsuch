@@ -10,3 +10,7 @@ Let's be bold.  Let's do [NumPy](https://github.com/numpy/numpy) + [SciPy](https
 
 Because it works. I'm finding myself laughing out loud at 2 AM saying "I can't believe that worked the first time!".  And it feels like the love child of Python (mom) and Fortran (dad), the two greatest languages
 ever invented.
+
+## NNModels
+
+Algorithms are based on Section 6.5 of "Deep Learning" by Goodfellow, Bengio and Courville.  See 1st Ed. page 202
