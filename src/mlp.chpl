@@ -12,17 +12,7 @@ module MLP {
    https://www.analyticsvidhya.com/blog/2017/05/neural-network-from-scratch-in-python-and-r/
    I'm going to do it very literally the first time
    */
-  proc main() {
-    writeln("Hola Mundo!");
-    var X = Matrix(
-       [1.0,0.0,1.0,0.0],
-       [1.0,0.0,1.0,1.0],
-       [0.0,1.0,0.0,1.0]);
-    var y = Vector([1.0,1.0,0.0]);
-    solve(X,y);
-  }
-
-  proc solve(X:[], y:[]) {
+  proc fit(X:[], y:[]) {
     // Variable Initialization
     const inputLayerNeurons = X.shape[1],
           hiddenlayer_neurons = 3,
@@ -62,6 +52,7 @@ module MLP {
         dHiddenLayer: [nobsRange, hiddenRange] real;
 
     for i in 1..#epoch {
+      writeln("training epoch %i".format(i));
       /* Forward propagation */
       hiddenLayerInput1 = dot(X,wh);
       /* Here, Python pulls a bullshit move
@@ -91,6 +82,7 @@ module MLP {
       bh += dot(dHiddenLayer, ones.T) * lr;
       [i in hiddenRange] bhm[i,..] = bh;
     }
+    return dOutput;
   }
 
   proc sigmoid(x: real) {
