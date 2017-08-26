@@ -15,23 +15,23 @@ module NNModels {
 
     var layerDom: domain(1) = {0..0}; // Is now 1 long
     var layers: [layerDom] Layer;
-    var denseLayers: [layerDom] Dense;
-    var activationLayers: [layerDom] Activation;
-    var inputDims: [layerDom] int;
-    var units: [layerDom] int;
-    //var Ws: [layerDom] Matrix;
+    var needSomeLayers = true;
     proc add(d: Dense) {
       // Is it the first?
-      if denseLayers[0] == nil {
+      var curidx = layerDom.size-1;
+      // layerDom has a default size of 1, even if empty
+      if curidx == 0 && needSomeLayers {
         writeln("  Very first dense layer");
         var l = new Layer(dataLayer=d, inputDim=d.inputDim, units=d.units);
-        denseLayers[0] = d;
         layers[0] = l;
+        needSomeLayers = false;
       } else {
         writeln("  Adding dense layer %i".format(layerDom.size));
         layerDom = {0..#layerDom.size+1};
-        denseLayers[layerDom.size-1] = d;
-        var l = new Layer(dataLayer=d, inputDim=d.inputDim, units=d.units);
+        if d.units < 1 {
+          writeln(" Error, need units > 0");
+        }
+        var l = new Layer(dataLayer=d,inputDim=layers[curidx].units,units=d.units);
         layers[layerDom.size-1] = l;
       }
     }
@@ -40,29 +40,33 @@ module NNModels {
      */
     proc add(a: Activation) {
       writeln("  Adding activation to layer %i".format(layers.size-1));
-      //layers[layerDom.size-1].activation = a;
-      activationLayers[layerDom.size-1] = a;
+      layers[layerDom.size-1].activation = a;
     }
 
     /*
      */
     proc fit(xTrain:[], yTrain:[], epochs:int, lr: real) {
-      //return MLP.fit(X=xTrain, y=yTrain, epochs=epochs, lr=lr);
       writeln("Initialization of weights");
       for l in 0..#layers.size {
-        var wTmp = layers[l].W;
+        writeln("Prepping layer %i".format(l));
+        //writeln(layers[l].W.domain);
         fillRandom(layers[l].W);
+        fillRandom(layers[l].bias);
+        /*
+        writeln("W:");
         writeln(layers[l].W);
-
-        //Ws[l] = wTmp;
+        writeln("\nb:");
+        writeln(layers[l].bias);
+        */
       }
+      /*
       for e in 1..#epochs {
           writeln("epoch %i".format(e));
           for l in 0..#layers.size {
             writeln("...in layer %i".format(l));
 
           }
-      }
+      } */
       return 0;
     }
   }
@@ -77,7 +81,7 @@ module NNModels {
         inputDim: int,
         units: int,
         W: [{0..#inputDim, 0..#units}] real,
-        bias: [{0..0}] real;
+        bias: [{0..#units}] real;
   }
 
   /*
