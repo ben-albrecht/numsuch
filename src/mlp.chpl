@@ -3,16 +3,13 @@ module MLP {
 
   use LinearAlgebra;
   use Random;
-  //config const epoch = 5000;
-  config const epoch = 5,
-               lr = 0.1;
 
   /*
    Attempts to implement the Multi-Layer Perceptron described here
    https://www.analyticsvidhya.com/blog/2017/05/neural-network-from-scratch-in-python-and-r/
    I'm going to do it very literally the first time
    */
-  proc fit(X:[], y:[]) {
+  proc mlpFit(X:[], y:[], epochs: int, lr: real) {
     // Variable Initialization
     const inputLayerNeurons = X.shape[1],
           hiddenlayer_neurons = 3,
@@ -51,7 +48,7 @@ module MLP {
         errorAtHiddenLayer: [nobsRange, hiddenRange] real,
         dHiddenLayer: [nobsRange, hiddenRange] real;
 
-    for i in 1..#epoch {
+    for i in 1..#epochs {
       writeln("training epoch %i".format(i));
       /* Forward propagation */
       hiddenLayerInput1 = dot(X,wh);
