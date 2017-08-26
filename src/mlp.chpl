@@ -26,19 +26,14 @@ module MLP {
           output_neurons = 1;
 
     /* Create Ranges for the objects */
-    const inputRange = 0..X.shape[1],
+    const nobsRange = 0..#X.shape[1], // number of observations
+          ftrDimRange = 0..#X.shape[2], // Width of observations
           hiddenRange = 0..#3,
           outputRange = 0..#1;
 
     var ones: [hiddenRange] real = 1.0;
-    /* Weight and bias matrices
-       Note that inputRange counts the number of inputs, not the dimension
-       of the input.  We'll have to clarify that.
-     */
-    var wh: [{inputRange, hiddenRange}] real,
-        //bh: [{0..0, hiddenRange}] real,
+    var wh: [{ftrDimRange, hiddenRange}] real,
         wout: [{hiddenRange, outputRange}] real;
-        //bout: [{0..0, outputRange}] real;
 
     var bh: [hiddenRange] real;
     var bout: [outputRange] real;
@@ -49,80 +44,51 @@ module MLP {
     fillRandom(bout);
 
     var bhm: [hiddenRange, hiddenRange] real;
-    for i in hiddenRange{
-      bhm[i,..] = bh;
-    }
+    [i in hiddenRange] bhm[i,..] = bh;
 
+    /* Forward propagation variables, set domains */
+    var hiddenLayerInput1: [nobsRange, hiddenRange] real;
+    var hiddenLayerInput: [nobsRange, hiddenRange] real;
+    var hiddenLayerActivations: [nobsRange, hiddenRange] real;
+    var outputLayerInput1: [nobsRange, outputRange] real;
+    var outputLayerInput: [nobsRange, outputRange] real;
+    var output: [nobsRange, outputRange] real;
+    var E: [nobsRange, outputRange] real;
+    var slopeOutputLayer: [nobsRange, outputRange] real;
+    var slopeHiddenLayer: [nobsRange, hiddenRange] real;
+    var dOutput: [nobsRange, outputRange] real;
+    var errorAtHiddenLayer: [nobsRange, hiddenRange] real;
+    var dHiddenLayer: [nobsRange, hiddenRange] real;
     for i in 1..#epoch {
-
       /* Forward propagation */
-      //writeln("X shape: ", X.shape);
-      //writeln("wh shape: ", wh.shape);
-      //writeln("bh shape: ", bh.shape);
-      //writeln("bhm shape: ", bhm.shape);
-      //writeln("bhm:\n ", bhm);
-      var hiddenLayerInput1 = dot(X,wh);
-      //writeln(hidden_layer_input1.shape);
-      //writeln(bh.shape);
-      //writeln(bhm.shape);
+      hiddenLayerInput1 = dot(X,wh);
       /* Here, Python pulls a bullshit move
          It adds b to each ROW of dot(X,wh), which is bullshit any way you slice it.
        */
-      //var hidden_layer_input = matPlus(hidden_layer_input1, bs);
-      var hiddenLayerInput = matPlus(hiddenLayerInput1, bhm);
-      var hiddenLayerActivations: [hiddenLayerInput.domain] real;
+      hiddenLayerInput = matPlus(hiddenLayerInput1, bhm);
       hiddenLayerActivations = sigmoid(hiddenLayerInput);
-      //writeln(hiddenLayerInput);
-      writeln("hiddenLayerActivations ", hiddenLayerActivations);
-      writeln("hiddenLayerActivations shape ", hiddenLayerActivations.shape);
-
-      var outputLayerInput1 = dot(hiddenLayerActivations, wout);
-      //writeln("outputLayerInput1 shape ", outputLayerInput1.shape);
-      //writeln("wout shape ", wout.shape);
-      var outputLayerInput = matPlus(outputLayerInput1, wout);
-      //writeln("outputLayerInput shape ", outputLayerInput.shape);
-      var output: [outputLayerInput.domain] real;
+      outputLayerInput1 = dot(hiddenLayerActivations, wout);
+      outputLayerInput = matPlus(outputLayerInput1, wout);
       output = sigmoid(outputLayerInput);
-      //writeln("output:\n", output);
 
-      /* Back Propagation */
-      var E = y - output;
-      //writeln("E ", E);
-      var slopeOutputLayer: [output.domain] real;
+      /* Backward propagation */
+      E = y - output;
       slopeOutputLayer = derivatives_sigmoid(output);
-      writeln("slopeOutputLayer:\n ", slopeOutputLayer);
-      var slopeHiddenLayer: [hiddenLayerActivations.domain] real;
       slopeHiddenLayer = derivatives_sigmoid(hiddenLayerActivations);
       /*
         This freaks me out, this does element-wise multiplication.
        */
-      var dOutput: [output.domain] real;
       dOutput = E * slopeOutputLayer;
-      /*
-      writeln("wout ", wout);
-      writeln("wout shape ", wout.shape);
-      */
-      writeln("dOutput ", dOutput);
-      writeln("dOutput shape ", dOutput.shape);
-      var errorAtHiddenLayer = dot(dOutput, wout.T);
-      /*
-      writeln("errorAtHiddenLayer ", errorAtHiddenLayer);
-      writeln("errorAtHiddenLayer shape ", errorAtHiddenLayer.shape);
-      writeln("slopeHiddenLayer shape ", slopeHiddenLayer.shape);
-       */
-      var dHiddenLayer = dot(errorAtHiddenLayer,slopeHiddenLayer);
-      writeln("dHiddenLayer ", dHiddenLayer);
-      writeln("dHiddenLayer shape ", dHiddenLayer.shape);
+      errorAtHiddenLayer = dot(dOutput, wout.T);
+      dHiddenLayer = dot(errorAtHiddenLayer,slopeHiddenLayer);
 
+      /* Updates */
       wout += dot(hiddenLayerActivations.T, dOutput) * lr;
-      writeln("ones ", ones);
-      writeln("ones shape ", ones.shape);
       bout += dot(dOutput.T, ones) * lr;
       wh += dot(X.T, dHiddenLayer) * lr;
       bh += dot(dHiddenLayer, ones.T) * lr;
-
+      [i in hiddenRange] bhm[i,..] = bh;
     }
-
   }
 
   proc sigmoid(x: real) {
