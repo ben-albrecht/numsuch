@@ -19,7 +19,12 @@ module MLP {
        [1.0,0.0,1.0,1.0],
        [0.0,1.0,0.0,1.0]);
     var y = Vector([1.0,1.0,0.0]);
+    solve(X,y);
+  }
 
+  proc solve(X:[], y:[]) {
+
+    //var y = Vector([1.0,1.0,0.0]);
     // Variable Initialization
     const inputLayerNeurons = X.shape[1],
           hiddenlayer_neurons = 3,
@@ -57,7 +62,7 @@ module MLP {
         dOutput: [nobsRange, outputRange] real,
         errorAtHiddenLayer: [nobsRange, hiddenRange] real,
         dHiddenLayer: [nobsRange, hiddenRange] real;
-        
+
     for i in 1..#epoch {
       /* Forward propagation */
       hiddenLayerInput1 = dot(X,wh);
