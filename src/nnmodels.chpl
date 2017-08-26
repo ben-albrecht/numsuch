@@ -18,7 +18,7 @@ module NNModels {
     }
 
     proc fit(xTrain:[], yTrain:[], epochs:int, lr: real) {
-      return mlpFit(X=xTrain, y=yTrain, epochs=epochs, lr=lr);
+      return MLP.fit(X=xTrain, y=yTrain, epochs=epochs, lr=lr);
     }
   }
 

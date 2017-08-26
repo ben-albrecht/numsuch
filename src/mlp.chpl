@@ -9,7 +9,7 @@ module MLP {
    https://www.analyticsvidhya.com/blog/2017/05/neural-network-from-scratch-in-python-and-r/
    I'm going to do it very literally the first time
    */
-  proc mlpFit(X:[], y:[], epochs: int, lr: real) {
+  proc fit(X:[], y:[], epochs: int, lr: real) {
     // Variable Initialization
     const inputLayerNeurons = X.shape[1],
           hiddenlayer_neurons = 3,
