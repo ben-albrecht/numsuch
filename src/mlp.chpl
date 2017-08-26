@@ -31,34 +31,33 @@ module MLP {
           hiddenRange = 0..#3,
           outputRange = 0..#1;
 
-    var ones: [hiddenRange] real = 1.0;
-    var wh: [{ftrDimRange, hiddenRange}] real,
-        wout: [{hiddenRange, outputRange}] real;
-
-    var bh: [hiddenRange] real;
-    var bout: [outputRange] real;
+    var ones: [hiddenRange] real = 1.0,
+        wh: [{ftrDimRange, hiddenRange}] real,
+        wout: [{hiddenRange, outputRange}] real,
+        bh: [hiddenRange] real,
+        bout: [outputRange] real,
+        bhm: [hiddenRange, hiddenRange] real;
 
     fillRandom(wh);
     fillRandom(bh);
     fillRandom(wout);
     fillRandom(bout);
-
-    var bhm: [hiddenRange, hiddenRange] real;
     [i in hiddenRange] bhm[i,..] = bh;
 
-    /* Forward propagation variables, set domains */
-    var hiddenLayerInput1: [nobsRange, hiddenRange] real;
-    var hiddenLayerInput: [nobsRange, hiddenRange] real;
-    var hiddenLayerActivations: [nobsRange, hiddenRange] real;
-    var outputLayerInput1: [nobsRange, outputRange] real;
-    var outputLayerInput: [nobsRange, outputRange] real;
-    var output: [nobsRange, outputRange] real;
-    var E: [nobsRange, outputRange] real;
-    var slopeOutputLayer: [nobsRange, outputRange] real;
-    var slopeHiddenLayer: [nobsRange, hiddenRange] real;
-    var dOutput: [nobsRange, outputRange] real;
-    var errorAtHiddenLayer: [nobsRange, hiddenRange] real;
-    var dHiddenLayer: [nobsRange, hiddenRange] real;
+    /* Forward / Backward propagation variables, set domains */
+    var hiddenLayerInput1: [nobsRange, hiddenRange] real,
+        hiddenLayerInput: [nobsRange, hiddenRange] real,
+        hiddenLayerActivations: [nobsRange, hiddenRange] real,
+        outputLayerInput1: [nobsRange, outputRange] real,
+        outputLayerInput: [nobsRange, outputRange] real,
+        output: [nobsRange, outputRange] real,
+        E: [nobsRange, outputRange] real,
+        slopeOutputLayer: [nobsRange, outputRange] real,
+        slopeHiddenLayer: [nobsRange, hiddenRange] real,
+        dOutput: [nobsRange, outputRange] real,
+        errorAtHiddenLayer: [nobsRange, hiddenRange] real,
+        dHiddenLayer: [nobsRange, hiddenRange] real;
+        
     for i in 1..#epoch {
       /* Forward propagation */
       hiddenLayerInput1 = dot(X,wh);
