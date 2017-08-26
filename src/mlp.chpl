@@ -23,8 +23,6 @@ module MLP {
   }
 
   proc solve(X:[], y:[]) {
-
-    //var y = Vector([1.0,1.0,0.0]);
     // Variable Initialization
     const inputLayerNeurons = X.shape[1],
           hiddenlayer_neurons = 3,
