@@ -22,8 +22,25 @@ module NNModels {
     }
   }
 
-  class Dense {
+  class Layer {
+
+  }
+
+  class Dense: Layer {
     var units: int,
         inputDim: int;
+  }
+
+  class Activation: Layer {
+    var name: string;
+
+    /* @TODO abstract function and derivative to f() and df() */
+    proc sigmoid(x: real) {
+      return (1/(1 + exp(-x)));
+    }
+
+    proc derivativesSigmoid(x) {
+      return x * (1-x);
+    }
   }
 }
