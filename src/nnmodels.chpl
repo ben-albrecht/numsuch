@@ -67,8 +67,6 @@ module NNModels {
      */
     proc add(a: Activation) {
       writeln("  Adding activation to layer %i".format(layerDom.size));
-      //writeln(layers[layerDom.size-1]);
-      //writeln(layers[layerDom.size]);
       layers[layerDom.size].activation = a;
     }
 
@@ -82,34 +80,27 @@ module NNModels {
           continue;
         }
         writeln("Prepping layer %i".format(l));
-        //writeln(layers[l].W.domain);
         fillRandom(layers[l].W);
-        fillRandom(layers[l].bias);
-        //writeln("W:");
-        //writeln(layers[l].W);
-        //writeln("\nb:");
-        //writeln(layers[l].bias);
+        fillRandom(layers[l].b);
+        writeln(layers[l].bias.domain.dim(2));
+        for i in layers[l].bias.domain.dim(2) {
+          layers[l].bias[..,i] = layers[l].b;
+        }
+
       }
       for e in 1..#epochs {
           writeln("epoch %i".format(e));
           writeln("Going FORWARD");
           for l in layerDom {
             if l == 1 {
-              /*
-              writeln(xTrain.domain);
-              writeln(layers[1].W.domain);
-              var wt = dot(layers[1].W, in);
-              writeln(wt.domain);
-              */
               continue;
             }
-            writeln("%i: I need to \n\t1. multiply W_t, h_t-1, W_t\n\t2. Add the bias to each row\n\t3. Apply the activation function".format(l));
-            writeln("W_now domain ", layers[l].W.domain);
-            writeln("h_last domain ", layers[l-1].h.domain);
-            var wl = dot(layers[l].W, layers[l-1].h);
-
-
+            //writeln("%i: I need to \n\t1. multiply W_t, h_t-1, W_t\n\t2. Add the bias to each row\n\t3. Apply the activation function".format(l));
+            // a = b + wh_{l-1}
+            layers[l].a = matPlus(layers[l].bias, dot(layers[l].W, layers[l-1].h));
+            layers[l].h = layers[l].activation.sigmoid(layers[l].a);
           }
+          writln("Going BACKWARD");
       }
       return 0;
     }
@@ -127,15 +118,18 @@ module NNModels {
         units: int,
         layerId: int,
         W: [{0..#units, 0..#inputDim}] real,
-        a: [{0..0, 0..0}] real,
+        a: [{0..#units, 0..#batchSize}] real,
         h: [{0..#inputDim, 0..#batchSize}] real,
-        bias: [{0..#inputDim}] real;
+        b: [{0..#units}] real, // The single column of bias
+        bias: [{0..#units, 0..#batchSize}] real; // bias = [b,b,..]
 
         proc summarize() {
           writeln("\tinputDim: %i\n\tunits: %i\n\tbatchSize: %i".format(inputDim,units, batchSize ));
           writeln("\tW size ", W.shape);
           writeln("\th size ", h.shape);
           writeln("\ta size ", a.shape);
+          writeln("\tb size ", b.shape);
+          writeln("\tbias size ", bias.shape);
         }
   }
 
