@@ -100,7 +100,7 @@ module NNModels {
             layers[l].a = matPlus(layers[l].bias, dot(layers[l].W, layers[l-1].h));
             layers[l].h = layers[l].activation.sigmoid(layers[l].a);
           }
-          writln("Going BACKWARD");
+          writeln("Going BACKWARD");
       }
       return 0;
     }
