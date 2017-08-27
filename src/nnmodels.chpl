@@ -7,9 +7,11 @@
  Require: b for 1...l
  Require: x, input data
  Require: y, target output (e.g. labels)
- h_0 = x
+ h_0 = x  // dims batchSize x observationDim
  for k = 1..l do
   a_k = b_k + W_k h_{k-1}  // Notice, this is equiv to adding b to each ROW
+                           // W_k units_k x batchSize
+                           // b_k 1 x units_k
   h_k = f(a_k) // f = activation function
  end for
  y = h_l
@@ -41,18 +43,23 @@ module NNModels {
         var l = new Layer(dataLayer=d
           , inputDim=d.inputDim
           , units=d.units
-          , activation = new Activation(name="linear"));
+          , batchSize=d.batchSize
+          , layerId=curidx
+          , activation = new Activation(name="linear")
+          );
         layers[layerDom.size] = l;
-        //writeln(layers[layerDom.size]);
+        layers[layerDom.size].summarize();
       } else {
         layerDom = {1..#layerDom.size+1};
         writeln(" Adding Dense layer %i".format(layerDom.size));
         var l = new Layer(dataLayer=d
-          ,inputDim=layers[layerDom.size-1].units
-          ,units=d.units
-          ,activation=new Activation(name="linear"));
+          , inputDim=layers[layerDom.size-1].inputDim
+          , units=d.units
+          , batchSize=layers[layerDom.size-1].batchSize
+          , layerId=curidx
+          , activation=new Activation(name="linear"));
         layers[layerDom.size] = l;
-        //writeln(layers[layerDom.size]);
+        layers[layerDom.size].summarize();
       }
     }
     /*
@@ -68,23 +75,18 @@ module NNModels {
     /*
      */
     proc fit(xTrain:[], yTrain:[], epochs:int, lr: real) {
-      writeln("Initialization of weights");
-      writeln(xTrain.domain);
-      writeln(layers[1].W.domain);
-      writeln(xTrain);
-      writeln(layers[1].W);
-      //layers[1].W = xTrain;
-      //var wt = dot(xTrain, layers[1].W);
       for l in layerDom {
         if l == 1 {
+          writeln(" layers[l].h domain " , layers[l].h.domain);
+          layers[l].h = xTrain.T;
           continue;
         }
         writeln("Prepping layer %i".format(l));
         //writeln(layers[l].W.domain);
         fillRandom(layers[l].W);
         fillRandom(layers[l].bias);
-        writeln("W:");
-        writeln(layers[l].W);
+        //writeln("W:");
+        //writeln(layers[l].W);
         //writeln("\nb:");
         //writeln(layers[l].bias);
       }
@@ -93,12 +95,19 @@ module NNModels {
           writeln("Going FORWARD");
           for l in layerDom {
             if l == 1 {
+              /*
+              writeln(xTrain.domain);
+              writeln(layers[1].W.domain);
+              var wt = dot(layers[1].W, in);
+              writeln(wt.domain);
+              */
               continue;
             }
-            writeln("%i: I need to \n\t1. multiply W_t-1, W_t\n\t2. Add the bias to each row\n\t3. Apply the activation function".format(l));
-            writeln("W_last domain ", layers[l-1].W.domain);
+            writeln("%i: I need to \n\t1. multiply W_t, h_t-1, W_t\n\t2. Add the bias to each row\n\t3. Apply the activation function".format(l));
             writeln("W_now domain ", layers[l].W.domain);
-            var wl = dot(layers[l-1].W, layers[l].W);
+            writeln("h_last domain ", layers[l-1].h.domain);
+            var wl = dot(layers[l].W, layers[l-1].h);
+
 
           }
       }
@@ -113,10 +122,21 @@ module NNModels {
   class Layer {
     var dataLayer: Dense,
         activation: Activation,
+        batchSize: int,
         inputDim: int,
         units: int,
-        W: [{0..#inputDim, 0..#units}] real,
-        bias: [{0..#units}] real;
+        layerId: int,
+        W: [{0..#units, 0..#inputDim}] real,
+        a: [{0..0, 0..0}] real,
+        h: [{0..#inputDim, 0..#batchSize}] real,
+        bias: [{0..#inputDim}] real;
+
+        proc summarize() {
+          writeln("\tinputDim: %i\n\tunits: %i\n\tbatchSize: %i".format(inputDim,units, batchSize ));
+          writeln("\tW size ", W.shape);
+          writeln("\th size ", h.shape);
+          writeln("\ta size ", a.shape);
+        }
   }
 
   /*
