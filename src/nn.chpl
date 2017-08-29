@@ -5,8 +5,9 @@ module NN {
 
   class Sequential {
     var layerDom = {1..0},
-        L: Loss,
+        loss = new Loss(),
         layers: [layerDom] Layer;
+
 
     proc add(d: Dense) {
       writeln(" Adding a new dense layer");
@@ -32,9 +33,11 @@ module NN {
     //proc add(d: Activation) { }
 
     proc compile(xTrain:[], yTrain:[]) {
-      //var X: [{1..1,1..1}] real;
-      //X.domain = xTrain.domain;
-      //X = xTrain;
+      // Add the output layer for calculating epoch error
+      layers.push_back(new Layer());
+      ref topLayer = layers[layerDom.last];
+      topLayer.units = 1;
+      topLayer.layerId = layerDom.last;
 
       for l in layers {
         if l.layerId == layerDom.first {
@@ -66,7 +69,6 @@ module NN {
         }
         //writeln(" currentLayer ", l);
       }
-      var topLayer = new Layer(units=yTrain.shape[1]);
     }
     proc fit(xTrain:[], yTrain:[], epochs:int, lr: real) {
         compile(xTrain, yTrain);
@@ -82,17 +84,25 @@ module NN {
           for l in layers.domain {
             ref currentLayer = layers[l];
             if l == layers.domain.first {
-              writeln(" currentLayer.W domain ", currentLayer.W.domain);
-              writeln(" X.T domain ", X.T.domain);
+              //writeln(" currentLayer.W domain ", currentLayer.W.domain);
+              //writeln(" X.T domain ", X.T.domain);
               currentLayer.a = matPlus(currentLayer.bias, dot(currentLayer.W, X.T));
+              currentLayer.h = currentLayer.activation.f(currentLayer.a);
               continue;
             }
-            writeln(" FP: On layer %i".format(l));
+            writeln(" FP: On layer %i".format(currentLayer.layerId));
             ref lowerLayer = layers[l-1];
-            writeln(" currentLayer.W domain ", currentLayer.W.domain);
-            writeln("  lowerLayer.h domain ", lowerLayer.h.domain);
-            var x = dot(currentLayer.W, lowerLayer.h);
+            //writeln(" currentLayer.W domain ", currentLayer.W.domain);
+            //writeln("  lowerLayer.h domain ", lowerLayer.h.domain);
+            currentLayer.a = matPlus(currentLayer.bias, dot(currentLayer.W, lowerLayer.h));
+            currentLayer.h = currentLayer.activation.f(currentLayer.a);
           }
+          ref currentLayer = layers[layerDom.last];
+          writeln(" yTrain domain ", yTrain.domain);
+          writeln(" currentLayer.h.domain ", currentLayer.h.domain);
+          writeln(" currentLayer.error.domain ", currentLayer.error.domain);
+          currentLayer.error = loss.L(yTrain, currentLayer.h);
+
           for l in layers.domain by -1 {
             writeln(" BP: On layer %i".format(l));
           }
@@ -169,7 +179,13 @@ module NN {
 
   }
   class Loss {
-
+    proc L(y:[], x:[]) {
+      var yd: [{1..1,1..#y.shape[1]}] real;
+      writeln(" yd domain ", yd.domain);
+      yd[1,..] = y;
+      var e = matMinus(yd, x);
+      return e;
+    }
   }
 
 }
