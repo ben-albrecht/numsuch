@@ -155,12 +155,13 @@ module NN {
             currentLayer.gradH = currentLayer.activation.df(currentLayer.a);
             // set the error
             if l == layerDom.last {
-              writeln("Epoch (%i) error: ".format(e), currentLayer.error.T);
               //writeln("  currentLayer.gradH ", currentLayer.gradH);
               //writeln("  yTrain.domain ", yTrain.domain);
               //writeln("  currentLayer.h.domain ", currentLayer.h.domain);
               //writeln("  currentLayer.error.domain ", currentLayer.error.domain);
               currentLayer.error = loss.L(yTrain, currentLayer.h);
+              writeln("Epoch (%i) error: ".format(e), currentLayer.error.T);
+              writeln("    max(error): ", max reduce abs(currentLayer.error));
             } else {
               ref ul = layers[l+1];
               //writeln("   currentLayer.error.domain ", currentLayer.error.domain);
@@ -175,12 +176,13 @@ module NN {
             //currentLayer.W += dot(currentLayer.dH, lowerLayer.h.T) * lr;
             currentLayer.W += dot(lowerLayer.h.T, currentLayer.dH) * lr;
             var ones: [currentLayer.dH.domain] real = 1.0;
-            var b = dot(currentLayer.dH, ones.T) * lr;
+
             //writeln("   b.domain ", b.domain);
             //writeln("   currentLayer.b.domain ", currentLayer.b.domain);
             //writeln("   currentLayer.bias.domain ", currentLayer.bias.domain);
+            currentLayer.b += dot(currentLayer.dH, ones.T) * lr;
+            currentLayer.bias += dot(currentLayer.dH, ones.T) * lr;
             //writeln("   currentLayer.dH.domain ", currentLayer.dH.domain);
-            //currentLayer.b += dot(currentLayer.dH, ones.T) * lr;
           }
         }
         t.stop();
