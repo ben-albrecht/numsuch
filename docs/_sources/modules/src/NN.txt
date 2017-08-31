@@ -1,0 +1,89 @@
+.. default-domain:: chpl
+
+.. module:: NN
+   :synopsis: This is a pretty good example of the pseudocode http://www.cleveralgorithms.com/nature-inspired/neural/backpropagation.html
+
+NN
+==
+**Usage**
+
+.. code-block:: chapel
+
+   use NN;
+
+
+This is a pretty good example of the pseudocode http://www.cleveralgorithms.com/nature-inspired/neural/backpropagation.html
+
+
+.. class:: Sequential
+
+   .. attribute:: var layerDom = {1..0}
+
+   .. attribute:: var loss = new Loss()
+
+   .. attribute:: var layers: [layerDom] Layer
+
+   .. method:: proc add(d: Dense)
+
+   .. method:: proc add(d: Activation)
+
+   .. method:: proc compile(xTrain: [], yTrain: [])
+
+   .. method:: proc fit(xTrain: [], yTrain: [], epochs: int, lr: real)
+
+.. class:: Dense
+
+   .. attribute:: var units: int
+
+   .. attribute:: var batchSize: int
+
+   .. attribute:: var inputDim: int
+
+.. class:: Activation
+
+   .. attribute:: var name: string
+
+   .. method:: proc f(x: real)
+
+   .. method:: proc df(x: real)
+
+   .. method:: proc sigmoid(x: real)
+
+   .. method:: proc derivativesSigmoid(x)
+
+.. class:: Layer
+
+   .. attribute:: var layerId: int
+
+   .. attribute:: var activation: Activation
+
+   .. attribute:: var batchSize: int
+
+   .. attribute:: var inputDim: int
+
+   .. attribute:: var units: int
+
+   .. attribute:: var weightDom: domain(2)
+
+   .. attribute:: var outputDom: domain(2)
+
+   .. attribute:: var W: [weightDom] real
+
+   .. attribute:: var a: [outputDom] real
+
+   .. attribute:: var h: [outputDom] real
+
+   .. attribute:: var gradH: [outputDom] real
+
+   .. attribute:: var dH: [outputDom] real
+
+   .. attribute:: var bias: [outputDom] real
+
+   .. attribute:: var error: [outputDom] real
+
+   .. method:: proc summarize()
+
+.. class:: Loss
+
+   .. method:: proc L(y: [], x: [])
+
