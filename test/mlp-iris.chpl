@@ -12,7 +12,7 @@ var y = Vector([1.0,1.0,0.0]);
 const epochs:int = 4,
       lr: real = 0.1;
 var model = new Sequential();
-model.add(new Dense(units=2, inputDim=4, batchSize=3));
+model.add(new Dense(units=5, inputDim=4, batchSize=3));
 model.add(new Dense(units=6));
 model.add(new Dense(units=9));
 model.add(new Activation(name="relu"));

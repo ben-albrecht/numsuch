@@ -1,3 +1,40 @@
+/*
+ This is a pretty good example of the pseudocode http://www.cleveralgorithms.com/nature-inspired/neural/backpropagation.html
+
+ ** BACK PROP **
+ Initial Alg dervided from several sources:
+ y    : labels for target
+ E    : Error at current layer
+ E_   : Error at layer below
+ h+   : output of layer above
+ h    : output of current layer
+ h_   : ouput of layer below
+ gradH: gradient of current layer
+ dH   : derivative of current output
+ W    : current weight Matrix
+ W_   : weight matrix for layer below
+ b    : current bias Matrix
+ lr   : learning rate
+ *    : element-wise multiplication
+ 1    : appropriate sized one vector
+
+ for l in top layer to bottom layer, observes 3 layers at a time
+    gradH = derivative of activation on h
+    E     = y - h  if top layer;
+            h+ W
+    dH    = E * gradH
+    W    += h_ dH * lr
+    b    += dH 1 * lr
+
+ for l in top to bottom, observes two layers at a time
+     gradH = derivative of activation on h
+     E     = y - h  if top layer;
+             h+ W
+     dH    = E * gradH
+     W    += h_ dH * lr
+     b    += dH 1 * lr
+
+ */
 module NN {
   use LinearAlgebra,
       Time,
@@ -16,10 +53,12 @@ module NN {
       ref currentLayer = layers[layerDom.last];
       currentLayer.layerId = layerDom.last;
       if currentLayer.layerId == layerDom.first {
+        currentLayer.units = d.units;
         currentLayer.inputDim = d.inputDim;
         currentLayer.batchSize = d.batchSize;
-        currentLayer.weightDom = {1..#d.units, 1..#d.inputDim};
-        currentLayer.outputDom = {1..#d.units, 1..#d.batchSize};
+        //currentLayer.weightDom = {1..#d.units, 1..#d.inputDim};
+        currentLayer.weightDom = {1..#d.inputDim, 1..#d.units};
+        currentLayer.outputDom = {1..#d.batchSize, 1..#d.units};
       }
       currentLayer.units = d.units;
     }
@@ -56,8 +95,8 @@ module NN {
           ref lowerLayer = layers[l.layerId-1];
           l.inputDim = lowerLayer.units;
           l.batchSize = lowerLayer.batchSize;
-          l.weightDom = {1..#l.units, 1..#l.inputDim};
-          l.outputDom = {1..#l.units, 1..#l.batchSize};
+          l.weightDom = {1..#l.inputDim, 1..#l.units};
+          l.outputDom = {1..#l.batchSize, 1..#l.units};
           fillRandom(l.W);
           var b: [{l.bias.domain.dim(1)}] real;
           fillRandom(b);
@@ -84,33 +123,68 @@ module NN {
           for l in layers.domain {
             ref currentLayer = layers[l];
             if l == layers.domain.first {
+              //writeln(" X domain ", X.domain);
               //writeln(" currentLayer.W domain ", currentLayer.W.domain);
-              //writeln(" X.T domain ", X.T.domain);
-              currentLayer.a = matPlus(currentLayer.bias, dot(currentLayer.W, X.T));
+              //writeln(currentLayer.a.domain);
+              //writeln(currentLayer.bias.domain);
+              currentLayer.a = matPlus(currentLayer.bias, dot(X, currentLayer.W));
               currentLayer.h = currentLayer.activation.f(currentLayer.a);
               continue;
             }
-            writeln(" FP: On layer %i".format(currentLayer.layerId));
+            //writeln("** FORWARDS : On layer %i".format(currentLayer.layerId));
             ref lowerLayer = layers[l-1];
-            //writeln(" currentLayer.W domain ", currentLayer.W.domain);
             //writeln("  lowerLayer.h domain ", lowerLayer.h.domain);
-            currentLayer.a = matPlus(currentLayer.bias, dot(currentLayer.W, lowerLayer.h));
+            //writeln("  currentLayer.W domain ", currentLayer.W.domain);
+            currentLayer.a = matPlus(currentLayer.bias, dot(lowerLayer.h, currentLayer.W));
             currentLayer.h = currentLayer.activation.f(currentLayer.a);
           }
-          ref currentLayer = layers[layerDom.last];
+          /*
           writeln(" yTrain domain ", yTrain.domain);
           writeln(" currentLayer.h.domain ", currentLayer.h.domain);
           writeln(" currentLayer.error.domain ", currentLayer.error.domain);
-          currentLayer.error = loss.L(yTrain, currentLayer.h);
+           */
+          /* At the top, calculate the error and set some values before descending */
 
+          /*
+            ***** BACKWARDS *****
+           */
           for l in layers.domain by -1 {
-            writeln(" BP: On layer %i".format(l));
+            //writeln("** BACKWARDS at layer %i".format(l));
+            ref currentLayer = layers[layerDom.last];
+            ref lowerLayer = layers[layerDom.last-1];
+            currentLayer.gradH = currentLayer.activation.df(currentLayer.a);
+            // set the error
+            if l == layerDom.last {
+              writeln("Epoch (%i) error: ".format(e), currentLayer.error.T);
+              //writeln("  currentLayer.gradH ", currentLayer.gradH);
+              //writeln("  yTrain.domain ", yTrain.domain);
+              //writeln("  currentLayer.h.domain ", currentLayer.h.domain);
+              //writeln("  currentLayer.error.domain ", currentLayer.error.domain);
+              currentLayer.error = loss.L(yTrain, currentLayer.h);
+            } else {
+              ref ul = layers[l+1];
+              //writeln("   currentLayer.error.domain ", currentLayer.error.domain);
+              //writeln("   uh.h.T.domain ", ul.h.T.domain);
+              //writeln("   currentLayer.gradH.domain ", currentLayer.gradH.domain);
+              currentLayer.error = ul.h * currentLayer.gradH;
+            }
+            currentLayer.dH = currentLayer.error * currentLayer.gradH;
+            //writeln(" currentLayer.W.domain ", currentLayer.W.domain);
+            //writeln(" currentLayer.dH.domain ", currentLayer.dH.domain);
+            //writeln(" lowerLayer.h.T.domain ", lowerLayer.h.T.domain);
+            //currentLayer.W += dot(currentLayer.dH, lowerLayer.h.T) * lr;
+            currentLayer.W += dot(lowerLayer.h.T, currentLayer.dH) * lr;
+            var ones: [currentLayer.dH.domain] real = 1.0;
+            var b = dot(currentLayer.dH, ones.T) * lr;
+            //writeln("   b.domain ", b.domain);
+            //writeln("   currentLayer.b.domain ", currentLayer.b.domain);
+            //writeln("   currentLayer.bias.domain ", currentLayer.bias.domain);
+            //writeln("   currentLayer.dH.domain ", currentLayer.dH.domain);
+            //currentLayer.b += dot(currentLayer.dH, ones.T) * lr;
           }
-          writeln("Epoch (%i) error: ", layers[layers.domain.last].error);
         }
         t.stop();
         writeln(" elapsed time: ", t.elapsed());
-        //return MLPfit(layers=this.layers, xTrain, yTrain, epochs, lr);
         return 0;
     }
   }
@@ -159,11 +233,11 @@ module NN {
     W: [weightDom] real,
     a: [outputDom] real,
     h: [outputDom] real, // will be used in NEXT layer
-    gradH: [outputDom]real, // the gradient of the output
+    gradH: [outputDom] real, // the gradient of the output
     dH: [outputDom] real, // will be used in NEXT layer
-    b: [outputDom]real, // The single column of bias
+    b: [predDom] real, // The single column of bias
     bias: [outputDom] real, // bias = [b,b,..]
-    error: [predDom] real,
+    error: [outputDom] real,
     yHat: [predDom] real;
 
     proc summarize() {
@@ -180,9 +254,9 @@ module NN {
   }
   class Loss {
     proc L(y:[], x:[]) {
-      var yd: [{1..1,1..#y.shape[1]}] real;
-      writeln(" yd domain ", yd.domain);
-      yd[1,..] = y;
+      //var yd: [{1..1,1..#y.shape[1]}] real;
+      var yd: [x.domain] real;
+      yd[..,1] = y;
       var e = matMinus(yd, x);
       return e;
     }
