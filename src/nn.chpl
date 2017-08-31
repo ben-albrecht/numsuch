@@ -98,6 +98,7 @@ module NN {
           l.weightDom = {1..#l.inputDim, 1..#l.units};
           l.outputDom = {1..#l.batchSize, 1..#l.units};
           fillRandom(l.W);
+          l.W = l.W / 25.0;
           var b: [{l.bias.domain.dim(1)}] real;
           fillRandom(b);
           [j in l.bias.domain.dim(2)] l.bias[..,j] = b;
@@ -152,16 +153,17 @@ module NN {
             //writeln("** BACKWARDS at layer %i".format(l));
             ref currentLayer = layers[layerDom.last];
             ref lowerLayer = layers[layerDom.last-1];
-            currentLayer.gradH = currentLayer.activation.df(currentLayer.a);
+            currentLayer.gradH = currentLayer.activation.df(currentLayer.h);
             // set the error
             if l == layerDom.last {
               //writeln("  currentLayer.gradH ", currentLayer.gradH);
               //writeln("  yTrain.domain ", yTrain.domain);
               //writeln("  currentLayer.h.domain ", currentLayer.h.domain);
               //writeln("  currentLayer.error.domain ", currentLayer.error.domain);
+              //currentLayer.error = loss.L(yTrain, currentLayer.h);
               currentLayer.error = loss.L(yTrain, currentLayer.h);
-              writeln("Epoch (%i) error: ".format(e), currentLayer.error.T);
-              writeln("    max(error): ", max reduce abs(currentLayer.error));
+              //writeln("Epoch (%i) error: ".format(e), currentLayer.error.T);
+              //writeln("    max(error): ", max reduce abs(currentLayer.error));
             } else {
               ref ul = layers[l+1];
               //writeln("   currentLayer.error.domain ", currentLayer.error.domain);
@@ -185,8 +187,13 @@ module NN {
             //writeln("   currentLayer.dH.domain ", currentLayer.dH.domain);
           }
         }
+        ref topLayer = layers[layerDom.last];
         t.stop();
-        writeln(" elapsed time: ", t.elapsed());
+        writeln("Completed %i epochs".format(epochs));
+        writeln("  Predictions  : ", topLayer.h.T);
+        writeln("  Final error  : ", topLayer.error.T);
+        writeln("  max(error)   : ", max reduce abs(topLayer.error));
+        writeln("  elapsed time : ", t.elapsed());
         return 0;
     }
   }
