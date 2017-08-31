@@ -1,0 +1,14 @@
+.. default-domain:: chpl
+
+.. module:: NumSuch
+
+NumSuch
+=======
+**Usage**
+
+.. code-block:: chapel
+
+   use NumSuch;
+
+.. function:: proc main()
+

@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NN &mdash; chpldoc 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="chpldoc 0.0.1 documentation" href="../../index.html"/>
+        <link rel="next" title="NumSuch" href="NumSuch.html"/>
+        <link rel="prev" title="chpldoc documentation" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> chpldoc
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">chpldoc documentation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">NN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="NumSuch.html">NumSuch</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">chpldoc</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+    <li>NN</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/modules/src/NN.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-NN"></span><div class="section" id="nn">
+<h1>NN<a class="headerlink" href="#nn" title="Permalink to this headline">¶</a></h1>
+<p><strong>Usage</strong></p>
+<div class="highlight-chapel"><div class="highlight"><pre><span></span><span class="k">use</span> <span class="nx">NN</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This is a pretty good example of the pseudocode <a class="reference external" href="http://www.cleveralgorithms.com/nature-inspired/neural/backpropagation.html">http://www.cleveralgorithms.com/nature-inspired/neural/backpropagation.html</a></p>
+<dl class="class">
+<dt id="NN.Sequential">
+<em class="property">class </em><code class="descname">Sequential</code><a class="headerlink" href="#NN.Sequential" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="NN.Sequential.layerDom">
+<em class="property">var </em><code class="descname">layerDom</code> = {1..0}<a class="headerlink" href="#NN.Sequential.layerDom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Sequential.loss">
+<em class="property">var </em><code class="descname">loss</code> = new Loss()<a class="headerlink" href="#NN.Sequential.loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Sequential.layers">
+<em class="property">var </em><code class="descname">layers</code>: [layerDom] Layer<a class="headerlink" href="#NN.Sequential.layers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Sequential.add">
+<em class="property">proc </em><code class="descname">add</code><span class="sig-paren">(</span><em>d: Dense</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Sequential.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">proc </em><code class="descname">add</code><span class="sig-paren">(</span><em>d: Activation</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Sequential.compile">
+<em class="property">proc </em><code class="descname">compile</code><span class="sig-paren">(</span><em>xTrain: []</em>, <em>yTrain: []</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Sequential.compile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Sequential.fit">
+<em class="property">proc </em><code class="descname">fit</code><span class="sig-paren">(</span><em>xTrain: []</em>, <em>yTrain: []</em>, <em>epochs: int</em>, <em>lr: real</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Sequential.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NN.Dense">
+<em class="property">class </em><code class="descname">Dense</code><a class="headerlink" href="#NN.Dense" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="NN.Dense.units">
+<em class="property">var </em><code class="descname">units</code>: int<a class="headerlink" href="#NN.Dense.units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Dense.batchSize">
+<em class="property">var </em><code class="descname">batchSize</code>: int<a class="headerlink" href="#NN.Dense.batchSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Dense.inputDim">
+<em class="property">var </em><code class="descname">inputDim</code>: int<a class="headerlink" href="#NN.Dense.inputDim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NN.Activation">
+<em class="property">class </em><code class="descname">Activation</code><a class="headerlink" href="#NN.Activation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="NN.Activation.name">
+<em class="property">var </em><code class="descname">name</code>: string<a class="headerlink" href="#NN.Activation.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Activation.f">
+<em class="property">proc </em><code class="descname">f</code><span class="sig-paren">(</span><em>x: real</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Activation.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Activation.df">
+<em class="property">proc </em><code class="descname">df</code><span class="sig-paren">(</span><em>x: real</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Activation.df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Activation.sigmoid">
+<em class="property">proc </em><code class="descname">sigmoid</code><span class="sig-paren">(</span><em>x: real</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Activation.sigmoid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Activation.derivativesSigmoid">
+<em class="property">proc </em><code class="descname">derivativesSigmoid</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Activation.derivativesSigmoid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NN.Layer">
+<em class="property">class </em><code class="descname">Layer</code><a class="headerlink" href="#NN.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="NN.Layer.layerId">
+<em class="property">var </em><code class="descname">layerId</code>: int<a class="headerlink" href="#NN.Layer.layerId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.activation">
+<em class="property">var </em><code class="descname">activation</code>: Activation<a class="headerlink" href="#NN.Layer.activation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.batchSize">
+<em class="property">var </em><code class="descname">batchSize</code>: int<a class="headerlink" href="#NN.Layer.batchSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.inputDim">
+<em class="property">var </em><code class="descname">inputDim</code>: int<a class="headerlink" href="#NN.Layer.inputDim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.units">
+<em class="property">var </em><code class="descname">units</code>: int<a class="headerlink" href="#NN.Layer.units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.weightDom">
+<em class="property">var </em><code class="descname">weightDom</code>: domain(2)<a class="headerlink" href="#NN.Layer.weightDom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.outputDom">
+<em class="property">var </em><code class="descname">outputDom</code>: domain(2)<a class="headerlink" href="#NN.Layer.outputDom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.W">
+<em class="property">var </em><code class="descname">W</code>: [weightDom] real<a class="headerlink" href="#NN.Layer.W" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.a">
+<em class="property">var </em><code class="descname">a</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.h">
+<em class="property">var </em><code class="descname">h</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.gradH">
+<em class="property">var </em><code class="descname">gradH</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.gradH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.dH">
+<em class="property">var </em><code class="descname">dH</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.dH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.bias">
+<em class="property">var </em><code class="descname">bias</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.bias" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NN.Layer.error">
+<em class="property">var </em><code class="descname">error</code>: [outputDom] real<a class="headerlink" href="#NN.Layer.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NN.Layer.summarize">
+<em class="property">proc </em><code class="descname">summarize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NN.Layer.summarize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NN.Loss">
+<em class="property">class </em><code class="descname">Loss</code><a class="headerlink" href="#NN.Loss" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="NN.Loss.L">
+<em class="property">proc </em><code class="descname">L</code><span class="sig-paren">(</span><em>y: []</em>, <em>x: []</em><span class="sig-paren">)</span><a class="headerlink" href="#NN.Loss.L" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="NumSuch.html" class="btn btn-neutral float-right" title="NumSuch" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../../index.html" class="btn btn-neutral" title="chpldoc documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+  
+ 
+
+
+
+</body>
+</html>
