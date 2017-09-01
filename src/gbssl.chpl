@@ -17,7 +17,7 @@ module GBSSL {
         pcont: [vdom] real,
         pabdn: [vdom] real,
         pinj : [vdom] real,
-        beta: real = 1.0;
+        beta: real = 1.1;
 
     proc add(x: []) {
       if x.shape[1] != x.shape[2] {
@@ -43,8 +43,8 @@ module GBSSL {
       for v in vdom {
         var ps = cellProbabilities(v);
         pcont[v] = ps[1];
-        pabdn[v] = ps[2];
-        pinj[v] = ps[3];
+        pinj[v] = ps[2];
+        pabdn[v] = ps[3];
       }
     }
 
@@ -53,19 +53,25 @@ module GBSSL {
      Will need some expert advice.
      */
      proc cellProbabilities(i:int) {
+       // Need to remove the diagonal from the expressions m and l below
        var m: real = + reduce A[i,..];
-       var mm = m - A[i,i];
+       m = m - A[i,i];
        var l = + reduce xlogx(A[i,..]);
-       var h = log(m) - l / m;
-       var c = log(beta) / (log(1 + h));
+       l = l - xlogx(A[i,i]);
+       var h = max(log(m) - l / m,0);
+       var c = log(beta) / (log(beta + h));
        var d = (1- c)* sqrt(h);
        var z = max(c+d, 1);
-       writeln(" cell probabilities (%i, %i, %i)".format(m,d,z));
+       //writeln(" cell probabilities (%n, %n, %n)".format(c/z, d/z, 1-(c+d)/z));
        return (c/z, d/z, 1-c-d);
      }
   }
 
    proc xlogx(x: real) {
-     return x * log(x);
+     if x > 0.0005 {
+       return x * log(x);
+     } else {
+       return 0;
+     }
    }
 }
