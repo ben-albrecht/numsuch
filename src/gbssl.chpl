@@ -13,13 +13,12 @@ module GBSSL {
         v: [vdom] int,
         e: [edom] real,
         directed: bool,
-        A: [gdom] real;
+        A: [gdom] real,
+        pContinue: [edom] real;
 
     proc add(x: []) {
       if x.shape[1] != x.shape[2] {
-        writeln("Error!  X must be square!");
       } else {
-        writeln("  x.domain ", x.domain);
         vdom = {1..#x.shape[1]};
         gdom = {1..#x.shape[1], 1..#x.shape[1]};
         var xd = x.domain;
@@ -30,15 +29,28 @@ module GBSSL {
             Xd[ij] = x[ij];
           }
         }
-        writeln(A);
       }
+      pContinue();
     }
 
     proc pContinue() {
-      for ij in A.domain {
+      for i in vdom {
+        writeln(i);
+        var denom = + reduce A[i,..] - A[i,i];
+        for j in vdom {
+            pContinue[i,j] = A[i,j] / denom;
+        }
+        writeln(denom);
         continue;
       }
-
     }
+
+    proc calculatePContinue(ij) {
+      var denom  = + reduce A[ij[1],..] - A[ij[1], ij[1]];
+      var w = A[ij[1], ij[1]] / denom;
+      return w;
+    }
+
+
   }
 }
