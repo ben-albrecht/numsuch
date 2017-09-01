@@ -19,9 +19,13 @@ module GBSSL {
         pcont: [vdom] real,
         pabdn: [vdom] real,
         pinj : [vdom] real,
+        compiled: bool = false,
         beta: real = 1.1;
 
     proc fit(data: [], labels: []) {
+      if !compiled {
+        compile();
+      }
       if data.shape[1] != data.shape[2] {
       } else {
         vdom = {1..#data.shape[1]};
@@ -43,6 +47,7 @@ module GBSSL {
 
     proc compile() {
       calculateProbs();
+      compiled = true;
     }
     proc calculateProbs() {
       for v in vdom {
