@@ -10,11 +10,14 @@ module GBSSL {
     var vdom: domain(1),
         gdom: domain(2),
         edom: sparse subdomain(gdom),
-        v: [vdom] int,
+        v: [vdom] real,
         e: [edom] real,
         directed: bool,
         A: [gdom] real,
-        pContinue: [edom] real;
+        pcont: [vdom] real,
+        pabdn: [vdom] real,
+        pinj : [vdom] real,
+        beta: real = 1.0;
 
     proc add(x: []) {
       if x.shape[1] != x.shape[2] {
@@ -30,27 +33,39 @@ module GBSSL {
           }
         }
       }
-      pContinue();
+      //pContinue();
     }
 
     proc pContinue() {
-      for i in vdom {
-        writeln(i);
-        var denom = + reduce A[i,..] - A[i,i];
-        for j in vdom {
-            pContinue[i,j] = A[i,j] / denom;
-        }
-        writeln(denom);
-        continue;
+    }
+
+    proc calculateProbs() {
+      for v in vdom {
+        var ps = cellProbabilities(v);
+        pcont[v] = ps[1];
+        pabdn[v] = ps[2];
+        pinj[v] = ps[3];
       }
     }
 
-    proc calculatePContinue(ij) {
-      var denom  = + reduce A[ij[1],..] - A[ij[1], ij[1]];
-      var w = A[ij[1], ij[1]] / denom;
-      return w;
-    }
-
-
+    /*
+     Try to take advantage of function promotion by doing this one element at a time
+     Will need some expert advice.
+     */
+     proc cellProbabilities(i:int) {
+       var m: real = + reduce A[i,..];
+       var mm = m - A[i,i];
+       var l = + reduce xlogx(A[i,..]);
+       var h = log(m) - l / m;
+       var c = log(beta) / (log(1 + h));
+       var d = (1- c)* sqrt(h);
+       var z = max(c+d, 1);
+       writeln(" cell probabilities (%i, %i, %i)".format(m,d,z));
+       return (c/z, d/z, 1-c-d);
+     }
   }
+
+   proc xlogx(x: real) {
+     return x * log(x);
+   }
 }

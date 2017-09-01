@@ -14,3 +14,5 @@ var y = Vector([1.0,1.0,0.0,1.0]);
 
 var A = new AdjacencyMatrix();
 A.add(X);
+A.calculateProbs();
+writeln(A.A);
