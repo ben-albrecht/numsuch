@@ -2,6 +2,8 @@
   Package of Graph-Based Semi-Supervised Learning techniques based partially
   on the work by `Subramanya and Talukdar <http://graph-ssl.wdfiles.com/local--files/blog%3A_start/graph_ssl_acl12_tutorial_slides_final.pdf>`_
 
+  Also, see notes in the /tex folder under main.
+
  */
 module GBSSL {
   use LinearAlgebra;
@@ -33,12 +35,11 @@ module GBSSL {
           }
         }
       }
-      //pContinue();
     }
 
-    proc pContinue() {
-    }
-
+    /*
+      We need three probabilities as each vertex for the MAD algo.
+     */
     proc calculateProbs() {
       for v in vdom {
         var ps = cellProbabilities(v);
