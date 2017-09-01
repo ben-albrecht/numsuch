@@ -8,7 +8,7 @@
 module GBSSL {
   use LinearAlgebra;
 
-  class AdjacencyMatrix {
+  class ModifiedAdsorptionModel {
     var vdom: domain(1),
         gdom: domain(2),
         edom: sparse subdomain(gdom),
@@ -21,17 +21,17 @@ module GBSSL {
         pinj : [vdom] real,
         beta: real = 1.1;
 
-    proc add(x: []) {
-      if x.shape[1] != x.shape[2] {
+    proc fit(data: [], labels: []) {
+      if data.shape[1] != data.shape[2] {
       } else {
-        vdom = {1..#x.shape[1]};
-        gdom = {1..#x.shape[1], 1..#x.shape[1]};
-        var xd = x.domain;
+        vdom = {1..#data.shape[1]};
+        gdom = {1..#data.shape[1], 1..#data.shape[1]};
+        var xd = data.domain;
         ref Xd = A.reindex(xd);
-        for ij in x.domain {
-          if x[ij] > 0 {
+        for ij in data.domain {
+          if data[ij] > 0 {
             edom += ij+(1,1);
-            Xd[ij] = x[ij];
+            Xd[ij] = data[ij];
           }
         }
       }
@@ -40,6 +40,10 @@ module GBSSL {
     /*
       We need three probabilities as each vertex for the MAD algo.
      */
+
+    proc compile() {
+      calculateProbs();
+    }
     proc calculateProbs() {
       for v in vdom {
         var ps = cellProbabilities(v);
