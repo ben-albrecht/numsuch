@@ -27,12 +27,13 @@ module GBSSL {
       data: A square matrix with as many rows as vertices in the graph.
       y: labels, must be as long as the number of vertices. Each different category
          gets a column in the Label matrix and records can have more
-         than one label.  E.g.
+         than one or zero labels.  E.g.
             [isBlue, isRed, isPurple]
             [1     ,     0,        0]
             [0     ,     1,        0]
             [0     ,     0,        1]
             [0     ,     1,        1]
+            [0     ,     0,        0]
      */
     proc fit(data: [], labels: []) {
       if !compiled {
