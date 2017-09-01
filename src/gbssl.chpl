@@ -12,6 +12,7 @@ module GBSSL {
     var vdom: domain(1),
         gdom: domain(2),
         edom: sparse subdomain(gdom),
+        ldom: domain(2),
         v: [vdom] real,
         e: [edom] real,
         directed: bool,
@@ -22,11 +23,38 @@ module GBSSL {
         compiled: bool = false,
         beta: real = 1.1;
 
+    /*
+      data: A square matrix with as many rows as vertices in the graph.
+      y: labels, must be as long as the number of vertices. Each different category
+         gets a column in the Label matrix and records can have more
+         than one label.  E.g.
+            [isBlue, isRed, isPurple]
+            [1     ,     0,        0]
+            [0     ,     1,        0]
+            [0     ,     0,        1]
+            [0     ,     1,        1]
+     */
     proc fit(data: [], labels: []) {
       if !compiled {
-        compile();
+        compile(data, labels);
       }
+    }
+
+    /*
+      We need three probabilities as each vertex for the MAD algo.
+     */
+
+    proc compile(data: [], labels: []) {
+      writeln("  ..compiling model");
+      calculateProbs();
+      prepareA(data);
+      prepareY(labels);
+      compiled = true;
+    }
+
+    proc prepareA(data: []) {
       if data.shape[1] != data.shape[2] {
+        halt("** ERROR:  Data must be square. Data is %n by %n".format(data.shape[1], data.shape[2]));
       } else {
         vdom = {1..#data.shape[1]};
         gdom = {1..#data.shape[1], 1..#data.shape[1]};
@@ -41,13 +69,12 @@ module GBSSL {
       }
     }
 
-    /*
-      We need three probabilities as each vertex for the MAD algo.
-     */
-
-    proc compile() {
-      calculateProbs();
-      compiled = true;
+    proc prepareY(labels: []) {
+      if labels.shape[1 ]!= vdom.size {
+        halt("\n\tYou need one label per vertex.\n\t\t#labels: %n\t#vertices: %n".format(labels.shape[1], vdom.shape[1]));
+      }
+      var d = {vdom.dim(1), labels.domain.dim(1)};
+      writeln(" labels.domain ", labels.domain);
     }
     proc calculateProbs() {
       for v in vdom {

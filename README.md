@@ -1,6 +1,8 @@
 # NumSuch
 Porting little bits of code I need from NumPy over to Chapel
 
+Documents, such as they are, should be available [here](https://buddha314.github.io/numsuch/).
+
 This is an attempt to collect numerical tools into [Chapel](https://github.com/chapel-lang/chapel) libraries.
 It's a purely amateur effort, since I am by no means a numerical programmer.
 
