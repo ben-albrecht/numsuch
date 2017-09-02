@@ -12,12 +12,13 @@ module GBSSL {
     var vdom: domain(1),
         gdom: domain(2),
         edom: sparse subdomain(gdom),
-        ldom: domain(2),
+        ldom: domain(2),             // The domain of the labels
         v: [vdom] real,
         e: [edom] real,
         directed: bool,
-        A: [gdom] real,
-        pcont: [vdom] real,
+        A: [gdom] real,              // the data matrix
+        Y: [ldom] real,              // The labels, expanded by one column
+        pcont: [vdom] real,          // a vector of pContinue
         pabdn: [vdom] real,
         pinj : [vdom] real,
         compiled: bool = false,
@@ -75,7 +76,12 @@ module GBSSL {
         halt("\n\tYou need one label per vertex.\n\t\t#labels: %n\t#vertices: %n".format(labels.shape[1], vdom.shape[1]));
       }
       var d = {vdom.dim(1), labels.domain.dim(1)};
-      writeln(" labels.domain ", labels.domain);
+      ldom = {1..labels.shape[1], 1..labels.shape[2]};
+      //writeln("Labels\n", labels, "\n");
+      Y = labels;
+      //writeln("Y\n", Y, "\n");
+      ldom = {1..labels.shape[1], 1..labels.shape[2]+1};
+      //writeln("Y\n", Y, "\n");
     }
     proc calculateProbs() {
       for v in vdom {

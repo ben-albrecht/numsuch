@@ -10,8 +10,10 @@ all: test
 mad: gbssl-test.chpl
 	$(CC) $(MODULES) $(INCLUDES) $(LIBS) -o gbssl-test $<
 	./gbssl-test
+	rm gbssl-test
 
 
 test: mlp-test.chpl
 	$(CC) $(MODULES) $(INCLUDES) $(LIBS) -o mlp-test $<
 	./mlp-test
+	rm mlp-test
