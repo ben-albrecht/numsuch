@@ -8,7 +8,7 @@ It's a purely amateur effort, since I am by no means a numerical programmer.
 
 Let's be bold.  Let's do [NumPy](https://github.com/numpy/numpy) + [SciPy](https://github.com/scipy/scipy) + [Keras](https://keras.io/) all at once.
 
-Hopefully we can get the algorithms documented in the [tex](../tex) directory.  Trust the raw TeX for recency, not the PDFs.
+Hopefully we can get the algorithms documented in the [tex](tex/) directory.  Trust the raw TeX for recency, not the PDFs.
 
 ## Why Chapel?
 
@@ -19,7 +19,7 @@ ever invented.
 
 Algorithms are based on Section 6.5 of "Deep Learning" by Goodfellow, Bengio and Courville.  See 1st Ed. page 202
 
-Quick example from the [MLP tests](../test/mlp-test.chpl)
+Quick example from the [MLP tests](test/mlp-test.chpl)
 
 ```
 use NN;
