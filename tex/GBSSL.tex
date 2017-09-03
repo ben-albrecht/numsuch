@@ -1,5 +1,10 @@
 \documentclass{article}
 \usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+
 \begin{document}
 \title{Algorithms for Graph-Based Supervised Learning}
 \author{Brian Dolan}
@@ -9,6 +14,8 @@ Hello
 \section{Modified Adsorption}
 
 This routine is described in Talukdar below.
+
+\subsection{Prerequisites}
 
 I'm looking for a good parallelization strategy for this function.  I'm going to expand it as far as I can to see if something presents itself.  We are aiming to find $c_v$ and $d_v$ for each vertex in the graph.  First, let's define 
 \begin{eqnarray}
@@ -44,8 +51,26 @@ z_x &=& \max( c_x + d_x, 1)
 Given these values, the authors define
 
 \[
-p_v^{cont} = \frac{c_v}{z_v}, \vspace p_v^{inj} = \frac{d_v}{z_v}, \vspace p_v^{abnd} = 1-p_v^{cont}  - p_v^{inj}
+p_v^{cont} = \frac{c_v}{z_v}, \vspace{1mm} p_v^{inj} = \frac{d_v}{z_v}, \vspace{1mm} p_v^{abnd} = 1-p_v^{cont}  - p_v^{inj}
 \]
+
+\subsection{Algorithm 3: Modified Adsoprtion}
+
+Taken from the book reference below
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\caption{Modified Adsoprtion}\label{euclid}
+	\Procedure{Input:}{}
+	\State $G = (V,E,W)$
+	\State Labels = $Y_v \in \mathcal{R}^{m+1}$ for $v \in V$
+	\State Probabilities $p_v^{inj}, p_v^{cont}, p_v^{abnd}$ for $v \in V$
+	\EndProcedure
+	\Procedure{Output:}{}
+	 	\State $\hat Y_v$ for $v \in V$
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 
 \section{References}

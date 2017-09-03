@@ -9,9 +9,10 @@ module GBSSL {
   use LinearAlgebra;
 
   class ModifiedAdsorptionModel {
-    var vdom: domain(1),
+    var vcount: range,
+        vdom: domain(1),
         gdom: domain(2),
-        edom: sparse subdomain(gdom),
+        edom: sparse subdomain(gdom),// The non-zeroes of the graph
         ldom: domain(2),             // The domain of the labels
         v: [vdom] real,
         e: [edom] real,
@@ -45,7 +46,6 @@ module GBSSL {
     /*
       We need three probabilities as each vertex for the MAD algo.
      */
-
     proc compile(data: [], labels: []) {
       writeln("  ..compiling model");
       calculateProbs();
@@ -54,12 +54,16 @@ module GBSSL {
       compiled = true;
     }
 
+    /*
+     Create the adjacency matrix A internally
+     */
     proc prepareA(data: []) {
       if data.shape[1] != data.shape[2] {
         halt("** ERROR:  Data must be square. Data is %n by %n".format(data.shape[1], data.shape[2]));
       } else {
-        vdom = {1..#data.shape[1]};
-        gdom = {1..#data.shape[1], 1..#data.shape[1]};
+        vcount = 1..data.shape[1];
+        vdom = {vcount};
+        gdom = {vcount, vcount};
         var xd = data.domain;
         ref Xd = A.reindex(xd);
         for ij in data.domain {
@@ -71,18 +75,20 @@ module GBSSL {
       }
     }
 
+    /*
+      Organize the labels and add a column for the "unknown" label
+     */
     proc prepareY(labels: []) {
       if labels.shape[1 ]!= vdom.size {
         halt("\n\tYou need one label per vertex.\n\t\t#labels: %n\t#vertices: %n".format(labels.shape[1], vdom.shape[1]));
       }
-      var d = {vdom.dim(1), labels.domain.dim(1)};
       ldom = {1..labels.shape[1], 1..labels.shape[2]};
-      //writeln("Labels\n", labels, "\n");
       Y = labels;
-      //writeln("Y\n", Y, "\n");
       ldom = {1..labels.shape[1], 1..labels.shape[2]+1};
-      //writeln("Y\n", Y, "\n");
     }
+    /*
+      Find the 3 probs for each vertex
+     */
     proc calculateProbs() {
       for v in vdom {
         var ps = cellProbabilities(v);
