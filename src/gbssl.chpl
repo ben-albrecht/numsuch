@@ -2,6 +2,8 @@
   Package of Graph-Based Semi-Supervised Learning techniques based partially
   on the work by `Subramanya and Talukdar <http://graph-ssl.wdfiles.com/local--files/blog%3A_start/graph_ssl_acl12_tutorial_slides_final.pdf>`_
 
+  This is collected into the book on `Amazon <https://www.amazon.com/Graph-Based-Semi-Supervised-Synthesis-Artificial-Intelligence/dp/1627052011>`_
+
   Also, see notes in the /tex folder under main.
 
  */

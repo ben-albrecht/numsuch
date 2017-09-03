@@ -56,18 +56,36 @@ p_v^{cont} = \frac{c_v}{z_v}, \vspace{1mm} p_v^{inj} = \frac{d_v}{z_v}, \vspace{
 
 \subsection{Algorithm 3: Modified Adsoprtion}
 
-Taken from the book reference below
+Taken from the book reference below.  This will optimize
+
+\[
+C(\hat Y) = \sum_l \left [ \mu_1 \left(Y_l - \hat Y_l \right)^T S\left(Y_l -\hat Y_l\right) + \mu_2 \hat Y_l^T L \hat Y_l + \mu_3 \| \hat Y_l - R_l \|^2 \right]
+\]
+
+where $\mu_{1,2,3}$ are "hyperparameters that determine the relative importance of each term" in $C$.  So Dealer's Choice on $\mu$.  I've asked Dr. Talukdar for guidance on this selection and I'm awaiting his response.  Also, $Y_l$ and $R_l$ are the $l^{th}$ columns of $Y$ and $R$. 
 
 \begin{algorithm}
+\caption{One expression of the Modified Adsoprtion Algorigthm}
 \begin{algorithmic}[1]
 \caption{Modified Adsoprtion}\label{euclid}
 	\Procedure{Input:}{}
-	\State $G = (V,E,W)$
-	\State Labels = $Y_v \in \mathcal{R}^{m+1}$ for $v \in V$
-	\State Probabilities $p_v^{inj}, p_v^{cont}, p_v^{abnd}$ for $v \in V$
+	  \State $G = (V,E,W), M, R$
+	  \State Labels = $Y_v \in \mathcal{R}^{m+1}$ for $v \in V$
+	  \State Probabilities $p_v^{inj}, p_v^{cont}, p_v^{abnd}$ for $v \in V$
+	  \State Constants $\mu_1, \mu_1, \mu_3$
 	\EndProcedure
 	\Procedure{Output:}{}
-	 	\State $\hat Y_v$ for $v \in V$
+	  \State $\hat Y_v$ for $v \in V$
+	\EndProcedure
+	\Procedure{Iterate}{}
+	  \State $\hat Y_v \gets Y_v$ for $v \in V$ [Initialization]
+	  \State $M_{vv} \gets \mu_1 \times p_v^{inj} + \mu_2 \times p_v^{cont} \times \sum_u W_{vu} + \mu_3$
+	\While{Not Converged}
+	  \State $D_v \gets \sum_x \left(p_v^{cont} W_{vx} + p_x^{cont} W_{xv}\right) \hat Y_x $
+	  \ForAll{$v \in V$}
+	    \State $\hat Y \gets \frac{1}{M_{vv}} \left(\mu_1 \times p_v^{inj} \times Y_v + \mu_2 \times D_v + \mu_3 \times p_v^{abnd} \times R_v \right) $ 
+	  \EndFor
+	\EndWhile
 	\EndProcedure
 \end{algorithmic}
 \end{algorithm}
