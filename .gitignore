@@ -110,3 +110,7 @@ ENV/
 
 # Mason file
 Mason.lock
+
+# Specific, large data sets
+webkb_labels.txt
+webkb_vectors.mtx
