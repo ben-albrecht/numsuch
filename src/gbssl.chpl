@@ -8,7 +8,8 @@
 
  */
 module GBSSL {
-  use LinearAlgebra;
+  use LinearAlgebra,
+      Time;
 
   class ModifiedAdsorptionModel {
     var vcount: range,
@@ -19,13 +20,19 @@ module GBSSL {
         v: [vdom] real,
         e: [edom] real,
         directed: bool,
-        A: [gdom] real,              // the data matrix
+        A: [gdom] real,              // the data matrix, or W in the literature, diag(A) = 0
+        rowSum: [vdom] real,         // The vector of row sums, used frequently
         Y: [ldom] real,              // The labels, expanded by one column
         pcont: [vdom] real,          // a vector of pContinue
         pabdn: [vdom] real,
         pinj : [vdom] real,
         compiled: bool = false,
-        beta: real = 1.1;
+        beta: real = 1.1,
+        Yhat: [ldom] real,           // The matrix of predicted labels
+        R: [ldom] real = 0.0,        // The regularization matrix, 0 or pabdn
+        mu1, mu2, mu3: real = 0.33,
+        epsilon: real = 0.05,
+        Mvv: [vdom] real;
 
     /*
       data: A square matrix with as many rows as vertices in the graph.
@@ -43,6 +50,7 @@ module GBSSL {
       if !compiled {
         compile(data, labels);
       }
+      iterate();
     }
 
     /*
@@ -50,9 +58,9 @@ module GBSSL {
      */
     proc compile(data: [], labels: []) {
       writeln("  ..compiling model");
-      calculateProbs();
       prepareA(data);
       prepareY(labels);
+      calculateProbs();
       compiled = true;
     }
 
@@ -69,7 +77,8 @@ module GBSSL {
         var xd = data.domain;
         ref Xd = A.reindex(xd);
         for ij in data.domain {
-          if data[ij] > 0 {
+          // @TODO: Make this W instead with diag(W) = 0;
+          if data[ij] > 0 && ij[1] != ij[2] {
             edom += ij+(1,1);
             Xd[ij] = data[ij];
           }
@@ -84,9 +93,9 @@ module GBSSL {
       if labels.shape[1 ]!= vdom.size {
         halt("\n\tYou need one label per vertex.\n\t\t#labels: %n\t#vertices: %n".format(labels.shape[1], vdom.shape[1]));
       }
-      ldom = {1..labels.shape[1], 1..labels.shape[2]};
+      ldom = {vcount, 1..labels.shape[2]};
       Y = labels;
-      ldom = {1..labels.shape[1], 1..labels.shape[2]+1};
+      ldom = {vcount, 1..labels.shape[2]+1};
     }
     /*
       Find the 3 probs for each vertex
@@ -95,8 +104,15 @@ module GBSSL {
       for v in vdom {
         var ps = cellProbabilities(v);
         pcont[v] = ps[1];
+        //writeln("*  pcont[v] ", pcont[v]);
         pinj[v] = ps[2];
+        // Set R for unlabeled vertices
         pabdn[v] = ps[3];
+        if max reduce Y[v,..] < 0.1 {
+          writeln("  unlabeled vertex! ", Y[v,..]);
+          R[v,R.shape[2]] = pabdn[v];
+        }
+
       }
     }
 
@@ -105,18 +121,57 @@ module GBSSL {
      Will need some expert advice.
      */
      proc cellProbabilities(i:int) {
-       // Need to remove the diagonal from the expressions m and l below
+       // No need to remove the diagonal from the expressions m and l below
        var m: real = + reduce A[i,..];
-       m = m - A[i,i];
+       rowSum[i] = m;
        var l = + reduce xlogx(A[i,..]);
-       l = l - xlogx(A[i,i]);
-       var h = max(log(m) - l / m,0);
+       var h = max(log(rowSum[i]) - l / rowSum[i],0);
        var c = log(beta) / (log(beta + h));
        var d = (1- c)* sqrt(h);
        var z = max(c+d, 1);
        //writeln(" cell probabilities (%n, %n, %n)".format(c/z, d/z, 1-(c+d)/z));
        return (c/z, d/z, 1-c-d);
      }
+
+     proc iterate() {
+       var t: Timer;
+       t.start();
+       mu1 = 0.33;
+       mu2 = 0.33;
+       mu3 = 0.33;
+       /*
+         Initialize Yhat and Mvv once
+        */
+       Yhat = Y;
+       for v in vdom {
+           Mvv[v] = mu1 * pinj[v] + mu2 * pcont[v] * rowSum[v] + mu3;
+       }
+       // Now start the iterations.
+       var err = 1.0;
+       var itr = 0;
+       for v in vdom {
+         do {
+           err += -.1;
+           itr += 1;
+           var Dv = calcDv(v);
+           for v in vdom {
+             Yhat[v,..] = 1/Mvv[v] * (mu1 * pinj[v] * Y[v,..] + mu2 * Dv + mu3 * pabdn[v] * R[v,..]) ;
+             writeln(" Yhat[v,..] ", Yhat[v,..]);
+           }
+           //writeln("\tepoch (%n) error: %n ".format(itr, err));
+         } while (err > epsilon);
+       }
+       t.stop();
+       writeln("\telapsed time: %n".format(t.elapsed()));
+     }
+
+    proc calcDv(v: int) {
+      var pv: [{1..Yhat.shape[2]}] real = 0;
+      for x in vdom {
+        pv += (pcont[v] * A[v,x] + pcont[x] * A[v,x]) * Yhat[x,..];
+      }
+      return pv;
+    }
   }
 
    proc xlogx(x: real) {
