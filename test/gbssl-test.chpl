@@ -19,6 +19,11 @@ var y = Matrix(
   [0,0,0]
   );
 
+var labelFile = "data/webkb_labels.txt";
+var L: LabelMatrix = labelsToMatrix(labelFile,addDummy=true);
+
+/*
 var model = new ModifiedAdsorptionModel();
 model.fit(data=X, labels=y);
 writeln(model.A);
+ */

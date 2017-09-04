@@ -174,6 +174,9 @@ module GBSSL {
     }
   }
 
+   /*
+     Simple function to take advantage of promotion, hopefully
+    */
    proc xlogx(x: real) {
      if x > 0.0005 {
        return x * log(x);
@@ -181,4 +184,59 @@ module GBSSL {
        return 0;
      }
    }
+
+   /*
+   Loads a label file into a Matrix.  Labels should be binary indicators
+   <record id: string> <category 1 indicator> ... <category L indicator>
+    */
+   proc labelsToMatrix(fn: string, addDummy: bool = false) {
+     var lFile = open(fn, iomode.r).reader(),
+         names: [1..0] string,
+         x: [1..0] real,
+         nFields: int,
+         line: string,
+         ldom: domain(1),
+         Y: LabelMatrix = new LabelMatrix(),
+         xline: [Y.ldom] real,
+         nRows: int = 1,
+         firstLine: bool = true;
+     //var fields: string;
+     for line in lFile.lines() {
+        var fields = line.split("\t");
+        if firstLine {
+          nFields = fields.size;
+          if addDummy {
+            // Add a dummy column
+            Y.ldom = {1..nFields};
+            Y.dataDom = {1..0, 1..nFields};
+          } else {
+            Y.ldom = {1..nFields-1};
+          }
+          firstLine = false;
+        } else {
+          if fields.size != nFields {
+            halt("Unequal number of fields in label file");
+          }
+        }
+        //writeln(fields.size);
+        names.push_back(fields[1]);
+        Y.dataDom = { 1..#nRows, 1..#nFields};
+        //var xline: [Y.ldom] real;
+        for v in 2..fields.size {
+          xline = fields[v]:real;
+        }
+        //writeln(" fields ", fields[2..fields.size]);
+        Y.data[nRows, ..] = xline;
+        nRows += 1;
+     }
+     return Y;
+   }
+
+   class LabelMatrix {
+     var ldom: domain(1),
+         dataDom: domain(2),
+         data: [dataDom] real,
+         records: [ldom] string;
+   }
+
 }
