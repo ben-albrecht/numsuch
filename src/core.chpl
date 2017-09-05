@@ -53,4 +53,16 @@ module Core {
       }
     }
   }
+
+  /*
+   Does the pairwise cosine distance between rows of X and rows of Y.
+   Dimensions must be conformable
+   */
+  proc cosineDistance(X:[], Y:[], denseOutput=true) {
+    if X.shape[2] != Y.shape[2] {
+      halt(" dimension mismatch: X = (%n,%n)  Y = (%n,%n)".format(X.shape[1], X.shape[2], Y.shape[1], Y.shape[2]));
+    }
+    // Make magic happen
+
+  }
 }
