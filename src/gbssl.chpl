@@ -9,7 +9,8 @@
  */
 module GBSSL {
   use LinearAlgebra,
-      Time;
+      Time,
+      Core;
 
   class ModifiedAdsorptionModel {
     var vcount: range,
@@ -185,60 +186,6 @@ module GBSSL {
      }
    }
 
-   /*
-   Loads a label file into a Matrix.  Labels should be binary indicators
-   <record id: string> <category 1 indicator> ... <category L indicator>
-    */
-   proc labelsToMatrix(fn: string, addDummy: bool = false) {
-     var lFile = open(fn, iomode.r).reader(),
-         names: [1..0] string,
-         x: [1..0] real,
-         nFields: int,
-         line: string,
-         ldom: domain(1),
-         Y: LabelMatrix = new LabelMatrix(),
-         xline: [Y.ldom] real,
-         nRows: int = 1,
-         firstLine: bool = true;
-     //var fields: string;
-     for line in lFile.lines() {
-        var fields = line.split("\t");
-        if firstLine {
-          nFields = fields.size;
-          if addDummy {
-            // Add a dummy column
-            Y.ldom = {1..nFields};
-            Y.dataDom = {1..0, 1..nFields};
-          } else {
-            Y.ldom = {1..nFields-1};
-          }
-          firstLine = false;
-        } else {
-          if fields.size != nFields {
-            halt("Unequal number of fields in label file");
-          }
-        }
-        //writeln(fields.size);
-        names.push_back(fields[1]);
-        Y.dataDom = { 1..#nRows, 1..#nFields};
-        //var xline: [Y.ldom] real;
-        for v in 2..fields.size {
-          xline = fields[v]:real;
-        }
-        //writeln(" fields ", fields[2..fields.size]);
-        Y.data[nRows, ..] = xline;
-        nRows += 1;
-     }
-     return Y;
-   }
-
-   class LabelMatrix {
-     var ldom: domain(1),
-         dataDom: domain(2),
-         data: [dataDom] real,
-         records: [ldom] string;
-   }
-
    proc vectorsToAdjacency(V: [] real, metric: string = "cosim") {
      var xdom: domain(2) = {1..V.shape[1], 1..V.shape[1]},
          X: [xdom] real;
@@ -247,10 +194,10 @@ module GBSSL {
      if metric == "cosim" {
        var t: Timer;
        t.start();
-       for i in 1..V.shape[1] {
+       for i in 1..V.domain.dim(1) {
          writeln('...working rows %n'.format(i));
          var x1 = dot(V[i,..], V[i,..]);
-         for j in i+1..V.shape[1] {
+         for j in i+1..V.domain.dim(1) {
            // Do cosim
            var x2 = dot(V[j,..], V[j,..]);
            var c = dot(V[i,..], V[j,..])/ (x1 * x2);

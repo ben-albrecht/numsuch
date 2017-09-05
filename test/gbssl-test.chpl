@@ -1,7 +1,7 @@
 /*
  Designed to test the Modified Adsoprtion routine
  */
-use GBSSL,
+use NumSuch,
     MatrixMarket;
 
 
@@ -23,9 +23,14 @@ var y = Matrix(
 
 var labelFile = "data/webkb_labels.txt";
 var vectorFile = "data/webkb_vectors.mtx";
-var L: LabelMatrix = labelsToMatrix(labelFile,addDummy=true);
-var W = mmread(real, vectorFile);
-var V = vectorsToAdjacency(W);
+var L = new LabelMatrix();
+L.readFromFile(fn=labelFile, addDummy=true);
+//writeln(L.names);
+
+//var W = mmread(real, vectorFile);
+// this takes 5 hours on my laptop, holy cow.
+//var V = vectorsToAdjacency(W);
+
 
 /*
 var model = new ModifiedAdsorptionModel();
