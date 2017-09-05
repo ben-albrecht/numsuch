@@ -55,14 +55,70 @@ module Core {
   }
 
   /*
+   Does the pairwise cosine distance between rows of X.
+   Dimensions must be conformable
+   */
+  proc cosineDistance(X:[?Xdom], denseOutput=true) {
+    // TODO
+    if !denseOutput then halt('denseOutput=false not yet supported');
+
+    var cosDistDom: domain(2) = {Xdom.dim(1), Xdom.dim(1)},
+        cosDist: [cosDistDom] real;
+
+    // TODO: verbose output
+    //writeln(" Got V: ", V.shape);
+    //writeln(" cosDistDom.dims(1) ", cosDistDom.dims());
+
+    // Pre-compute repeated cosim's
+    var Xii: [Xdom.dim(1)] real;
+    [i in Xdom.dim(1)] Xii[i] = dot(X[i,..], X[i,..]);
+
+    forall i in Xdom.dim(1) {
+      const x1 = Xii[i];
+      for j in i+1..Xdom.dim(1).size {
+        // Do cosim
+        const x2 = Xii[j];
+        const c = 1 - dot(X[i,..], X[j,..]) / (x1 * x2);
+        cosDist[i,j] = c;
+        cosDist[j,i] = c;
+      }
+    }
+    return cosDist;
+  }
+
+  /*
    Does the pairwise cosine distance between rows of X and rows of Y.
    Dimensions must be conformable
    */
-  proc cosineDistance(X:[], Y:[], denseOutput=true) {
+  proc cosineDistance(X:[?Xdom], Y:[?Ydom], denseOutput=true) {
+    // TODO
+    if !denseOutput then halt('denseOutput=false not yet supported');
+
     if X.shape[2] != Y.shape[2] {
       halt(" dimension mismatch: X = (%n,%n)  Y = (%n,%n)".format(X.shape[1], X.shape[2], Y.shape[1], Y.shape[2]));
     }
-    // Make magic happen
 
+    var cosDistDom: domain(2) = {Xdom.dim(1), Ydom.dim(1)},
+        cosDist: [cosDistDom] real;
+
+    // TODO: verbose output
+    //writeln(" Got V: ", V.shape);
+    //writeln(" cosDistDom.dims(1) ", cosDistDom.dims());
+
+    // Pre-compute repeated cosim's
+    var XYii: [Xdom.dim(1)] real;
+    [i in Xdom.dim(1)] XYii[i] = dot(X[i,..], Y[i,..]);
+
+    forall i in Xdom.dim(1) {
+      const x1 = Xii[i];
+      for j in i+1..Xdom.dim(1).size {
+        // Do cosim
+        const x2 = XYii[j];
+        const c = 1 - dot(X[i,..], Y[j,..]) / (x1 * x2);
+        cosDist[i,j] = c;
+        cosDist[j,i] = c;
+      }
+    }
+    return cosDist;
   }
 }
