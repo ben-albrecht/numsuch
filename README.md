@@ -42,3 +42,7 @@ model.add(new Activation(name="relu"));
 
 var o = model.fit(xTrain=X,yTrain=y, epochs=epochs, lr=lr);
 ```
+
+## GBSSL
+
+Based mostly on the [PPT by Talukdar and Subramanya](http://graph-ssl.wdfiles.com/local--files/blog%3A_start/graph_ssl_acl12_tutorial_slides_final.pdf)
