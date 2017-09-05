@@ -105,16 +105,18 @@ module Core {
     //writeln(" Got V: ", V.shape);
     //writeln(" cosDistDom.dims(1) ", cosDistDom.dims());
 
-    // Pre-compute repeated cosim's
-    var XYii: [Xdom.dim(1)] real;
-    [i in Xdom.dim(1)] XYii[i] = dot(X[i,..], Y[i,..]);
+    // Pre-compute norms
+    var Xii: [Xdom.dim(1)] real;
+    var Yii: [Xdom.dim(1)] real;
+    [i in Xdom.dim(1)] Xii[i] = dot(X[i,..], X[i,..]);
+    [i in Ydom.dim(1)] Yii[i] = dot(Y[i,..], Y[i,..]);
 
     forall i in Xdom.dim(1) {
-      const x1 = Xii[i];
+      const x2 = Xii[i];
       for j in i+1..Xdom.dim(1).size {
         // Do cosim
-        const x2 = XYii[j];
-        const c = 1 - dot(X[i,..], Y[j,..]) / (x1 * x2);
+        const y2 = Yii[j];
+        const c = 1 - dot(X[i,..], Y[j,..]) / (y2 * x2);
         cosDist[i,j] = c;
         cosDist[j,i] = c;
       }
