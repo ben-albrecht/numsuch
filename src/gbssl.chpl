@@ -239,21 +239,22 @@ module GBSSL {
          records: [ldom] string;
    }
 
-   proc vectorsToAdjacency(V: [] real, metric: string = "cosim") {
-     var xdom: domain(2) = {1..V.shape[1], 1..V.shape[1]},
+   proc vectorsToAdjacency(V: [?D] real, metric: string = "cosim") {
+     var xdom: domain(2) = {D.dim(1), D.dim(1)},
          X: [xdom] real;
      writeln(" Got V: ", V.shape);
      writeln(" xdom.dims(1) ", xdom.dims());
      if metric == "cosim" {
        var t: Timer;
        t.start();
-       for i in 1..V.shape[1] {
-         writeln('...working rows %n'.format(i));
-         var x1 = dot(V[i,..], V[i,..]);
-         for j in i+1..V.shape[1] {
+       var Vii: [D.dim(1)] real;
+       [i in D.dim(1)] Vii[i] = dot(V[i,..], V[i,..]);
+       forall i in D.dim(1) {
+         const x1 = Vii[i];
+         for j in i+1..D.dim(1).size {
            // Do cosim
-           var x2 = dot(V[j,..], V[j,..]);
-           var c = dot(V[i,..], V[j,..])/ (x1 * x2);
+           const x2 = Vii[j];
+           const c = dot(V[i,..], V[j,..])/ (x1 * x2);
            X[i,j] = c;
            X[j,i] = c;
          }
